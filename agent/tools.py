@@ -233,7 +233,7 @@ def _mock_log_search(inp: dict) -> dict:
     now = datetime.now(timezone.utc)
     sample_errors = [
         "ERROR: Connection refused to downstream service at 10.0.1.42:5432",
-        'FATAL: too many connections for role "appuser" — max 100',
+        "FATAL: too many connections for role \"appuser\" — max 100",
         "TimeoutError: Task timed out after 29000ms",
         "HTTP 503 Service Unavailable from upstream target",
         "OutOfMemoryError: Container killed (OOMKilled) — limit 512MB",

@@ -1,11 +1,47 @@
 name: CI
-on: [push, pull_request]
+
+on:
+  push:
+    branches: ["main", "dev"]
+  pull_request:
+    branches: ["main"]
+
 jobs:
-  test:
+  lint-and-test:
+    name: Lint + Test (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+
+      - name: Set up Python ${{ matrix.python-version }}
+        run: uv python install ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: uv sync --dev
+
+      - name: Lint with ruff
+        run: uv run ruff check . --output-format=github
+
+      - name: Run tests
+        env:
+          MOCK_MODE: "true"
+          AWS_DEFAULT_REGION: "us-east-1"
+        run: uv run pytest tests/ -v --tb=short
+
+  docker-build:
+    name: Docker Build Check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v4
-      - run: uv sync --dev
-      - run: uv run ruff check .
-      - run: uv run pytest tests/ -v
+      - name: Build Docker image
+        run: docker build -t nova-incident-agent:ci .

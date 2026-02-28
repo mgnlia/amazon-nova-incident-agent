@@ -6,14 +6,16 @@ Provides REST API for incident submission and agent interaction.
 from __future__ import annotations
 
 import os
-import uuid
 from datetime import datetime, timezone
+from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from agent.core import AgentSession, run_agent, run_agent_mock
+from agent.core import run_agent, run_agent_mock
 
 app = FastAPI(
     title="Amazon Nova Incident Commander",
@@ -29,8 +31,18 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Serve static files if the directory exists
+_static_dir = Path(__file__).parent.parent / "static"
+if _static_dir.is_dir():
+    app.mount("/static", StaticFiles(directory=str(_static_dir)), name="static")
+
 # In-memory session store (swap for DynamoDB in production)
 sessions: dict[str, dict] = {}
+
+
+# ---------------------------------------------------------------------------
+# Schemas
+# ---------------------------------------------------------------------------
 
 
 class IncidentRequest(BaseModel):
@@ -56,6 +68,20 @@ class HealthResponse(BaseModel):
     model: str
 
 
+# ---------------------------------------------------------------------------
+# Routes
+# ---------------------------------------------------------------------------
+
+
+@app.get("/", include_in_schema=False)
+def root():
+    """Serve the web UI."""
+    index = _static_dir / "index.html"
+    if index.is_file():
+        return FileResponse(str(index))
+    return {"message": "Amazon Nova Incident Commander API", "docs": "/docs"}
+
+
 @app.get("/health", response_model=HealthResponse)
 def health():
     return HealthResponse(
@@ -68,7 +94,6 @@ def health():
 @app.post("/incidents", response_model=IncidentResponse)
 def create_incident(req: IncidentRequest):
     """Submit an incident for AI-powered diagnosis and remediation."""
-    # Determine if we should use mock mode
     use_mock = req.use_mock or os.environ.get("MOCK_MODE", "false").lower() == "true"
 
     enriched = f"Severity: {req.severity}\n"
@@ -84,7 +109,6 @@ def create_incident(req: IncidentRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Agent error: {str(e)}")
 
-    # Store session
     result = {
         "session_id": session.session_id,
         "status": session.status,
@@ -95,8 +119,13 @@ def create_incident(req: IncidentRequest):
         "created_at": datetime.now(timezone.utc).isoformat(),
     }
     sessions[session.session_id] = result
-
     return IncidentResponse(**result)
+
+
+@app.get("/incidents", response_model=list[IncidentResponse])
+def list_incidents():
+    """List all incident analyses."""
+    return [IncidentResponse(**s) for s in sessions.values()]
 
 
 @app.get("/incidents/{session_id}", response_model=IncidentResponse)
@@ -107,13 +136,7 @@ def get_incident(session_id: str):
     return IncidentResponse(**sessions[session_id])
 
 
-@app.get("/incidents", response_model=list[IncidentResponse])
-def list_incidents():
-    """List all incident analyses."""
-    return [IncidentResponse(**s) for s in sessions.values()]
-
-
-@app.post("/demo")
+@app.post("/demo", response_model=IncidentResponse)
 def run_demo():
     """Run a demo incident analysis using mock mode."""
     demo_incident = (

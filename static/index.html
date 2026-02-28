@@ -30,23 +30,9 @@
       padding: 2rem 1rem;
     }
 
-    header {
-      text-align: center;
-      margin-bottom: 2rem;
-    }
-
-    header h1 {
-      font-size: 1.8rem;
-      font-weight: 700;
-      color: var(--accent2);
-      letter-spacing: -0.5px;
-    }
-
-    header p {
-      color: var(--muted);
-      margin-top: 0.4rem;
-      font-size: 0.95rem;
-    }
+    header { text-align: center; margin-bottom: 2rem; }
+    header h1 { font-size: 1.8rem; font-weight: 700; color: var(--accent2); letter-spacing: -0.5px; }
+    header p { color: var(--muted); margin-top: 0.4rem; font-size: 0.95rem; }
 
     .badge {
       display: inline-block;
@@ -69,18 +55,27 @@
       margin-bottom: 1.5rem;
     }
 
-    .card h2 {
-      font-size: 1rem;
-      font-weight: 600;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      margin-bottom: 1rem;
+    .card h2 { font-size: 1rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 1rem; }
+
+    .form-row { display: flex; gap: 0.75rem; margin-bottom: 0.75rem; }
+    .form-row label { font-size: 0.8rem; color: var(--muted); display: block; margin-bottom: 0.3rem; }
+
+    input[type="text"], select {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-size: 0.88rem;
+      padding: 0.5rem 0.75rem;
+      outline: none;
     }
+
+    input[type="text"]:focus, select:focus { border-color: var(--accent2); }
 
     textarea {
       width: 100%;
-      height: 180px;
+      height: 160px;
       background: var(--bg);
       border: 1px solid var(--border);
       border-radius: var(--radius);
@@ -95,243 +90,237 @@
 
     textarea:focus { border-color: var(--accent2); }
 
+    .btn-row { display: flex; gap: 0.75rem; margin-top: 1rem; }
+
     button {
-      margin-top: 1rem;
-      width: 100%;
+      flex: 1;
       padding: 0.75rem;
       background: var(--accent2);
       color: #0d1117;
       border: none;
       border-radius: var(--radius);
-      font-size: 1rem;
+      font-size: 0.95rem;
       font-weight: 700;
       cursor: pointer;
       transition: opacity 0.2s;
     }
 
+    button.secondary {
+      background: #21262d;
+      color: var(--text);
+      border: 1px solid var(--border);
+      flex: 0 0 auto;
+      padding: 0.75rem 1.25rem;
+    }
+
     button:hover { opacity: 0.85; }
     button:disabled { opacity: 0.4; cursor: not-allowed; }
 
-    .spinner {
-      display: none;
-      margin-top: 1rem;
-      text-align: center;
-      color: var(--muted);
-      font-size: 0.9rem;
-    }
-
+    .spinner { display: none; margin-top: 1rem; text-align: center; color: var(--muted); font-size: 0.9rem; }
     .spinner.active { display: block; }
 
     .section-label {
-      font-size: 0.8rem;
-      font-weight: 600;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      margin-bottom: 0.5rem;
-      margin-top: 1.2rem;
+      font-size: 0.8rem; font-weight: 600; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.8px;
+      margin-bottom: 0.5rem; margin-top: 1.2rem;
     }
-
     .section-label:first-of-type { margin-top: 0; }
 
-    .runbook-title {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--accent2);
-      margin-bottom: 0.75rem;
+    .meta-row {
+      display: flex; gap: 1rem; flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+    .meta-pill {
+      background: #21262d; border: 1px solid var(--border);
+      border-radius: 20px; padding: 3px 12px;
+      font-size: 0.78rem; color: var(--muted);
+    }
+    .meta-pill span { color: var(--text); font-weight: 600; }
+
+    .reasoning-box {
+      background: #21262d; border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1rem;
+      font-size: 0.88rem; line-height: 1.7;
+      white-space: pre-wrap; word-break: break-word;
+      max-height: 400px; overflow-y: auto;
     }
 
-    .steps-list {
-      list-style: none;
-      padding: 0;
-    }
-
+    .steps-list { list-style: none; padding: 0; }
     .steps-list li {
       padding: 0.5rem 0.75rem;
       border-left: 3px solid var(--accent2);
       margin-bottom: 0.5rem;
       background: #21262d;
       border-radius: 0 var(--radius) var(--radius) 0;
-      font-size: 0.88rem;
-      line-height: 1.5;
+      font-size: 0.88rem; line-height: 1.5;
     }
 
-    .reasoning-box {
-      background: #21262d;
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 1rem;
-      font-size: 0.88rem;
-      line-height: 1.7;
-      white-space: pre-wrap;
-      word-break: break-word;
-    }
-
-    .actions-list {
-      list-style: none;
-      padding: 0;
-    }
-
+    .actions-list { list-style: none; padding: 0; }
     .actions-list li {
-      display: flex;
-      align-items: flex-start;
-      gap: 0.5rem;
-      padding: 0.4rem 0;
-      font-size: 0.88rem;
+      display: flex; align-items: flex-start; gap: 0.5rem;
+      padding: 0.4rem 0; font-size: 0.88rem;
       border-bottom: 1px solid var(--border);
     }
-
     .actions-list li:last-child { border-bottom: none; }
-
-    .actions-list li::before {
-      content: "✓";
-      color: var(--green);
-      font-weight: 700;
-      flex-shrink: 0;
-    }
+    .actions-list li::before { content: "✓"; color: var(--green); font-weight: 700; flex-shrink: 0; }
 
     .resolved-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      background: rgba(63,185,80,0.15);
-      border: 1px solid var(--green);
-      color: var(--green);
-      border-radius: 20px;
-      padding: 0.3rem 0.9rem;
-      font-size: 0.85rem;
-      font-weight: 600;
-      margin-top: 1rem;
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      background: rgba(63,185,80,0.15); border: 1px solid var(--green);
+      color: var(--green); border-radius: 20px; padding: 0.3rem 0.9rem;
+      font-size: 0.85rem; font-weight: 600; margin-top: 1rem;
     }
 
     .error-box {
-      background: rgba(247,129,102,0.1);
-      border: 1px solid var(--accent);
-      color: var(--accent);
-      border-radius: var(--radius);
-      padding: 1rem;
-      font-size: 0.88rem;
-      white-space: pre-wrap;
+      background: rgba(247,129,102,0.1); border: 1px solid var(--accent);
+      color: var(--accent); border-radius: var(--radius);
+      padding: 1rem; font-size: 0.88rem; white-space: pre-wrap;
     }
 
     #result { display: none; }
 
-    footer {
-      margin-top: 2rem;
-      color: var(--muted);
-      font-size: 0.78rem;
-      text-align: center;
-    }
+    footer { margin-top: 2rem; color: var(--muted); font-size: 0.78rem; text-align: center; }
   </style>
 </head>
 <body>
 
 <header>
   <h1>🛡️ Amazon Nova Incident Commander</h1>
-  <p>AI-powered DevOps incident response — powered by Amazon Nova Lite on Bedrock</p>
-  <span class="badge">RAG · Bedrock · FastAPI</span>
+  <p>Agentic AI-powered DevOps incident response — Amazon Nova on Bedrock</p>
+  <span class="badge">RAG · Bedrock Tool-Use · FastAPI</span>
 </header>
 
 <!-- Input -->
 <div class="card">
-  <h2>📥 Submit Alert</h2>
-  <textarea id="alertInput" spellcheck="false">{
-  "alert_type": "high_cpu",
-  "service": "payment-service",
-  "severity": "critical",
-  "message": "CPU utilisation at 97% for 10 minutes on i-0abc123. Requests timing out."
-}</textarea>
-  <button id="submitBtn" onclick="submitAlert()">⚡ Run Incident Commander</button>
-  <div class="spinner" id="spinner">🔄 Analysing alert with Amazon Nova…</div>
+  <h2>📥 Submit Incident</h2>
+  <div class="form-row">
+    <div style="flex:1">
+      <label for="serviceInput">Service / Resource</label>
+      <input type="text" id="serviceInput" placeholder="payment-service, prod-rds, lambda-checkout…" />
+    </div>
+    <div style="flex:0 0 160px">
+      <label for="severityInput">Severity</label>
+      <select id="severityInput">
+        <option value="critical">🔴 Critical</option>
+        <option value="high" selected>🟠 High</option>
+        <option value="medium">🟡 Medium</option>
+        <option value="low">🟢 Low</option>
+      </select>
+    </div>
+  </div>
+  <label for="alertInput" style="font-size:0.8rem;color:var(--muted);display:block;margin-bottom:0.3rem">Incident Description</label>
+  <textarea id="alertInput" spellcheck="false">CPU utilisation at 97% for 10 minutes on i-0abc123. Production payment-service requests timing out. ALB showing 2/5 targets unhealthy. Started after deploy at 14:30 UTC.</textarea>
+  <div class="btn-row">
+    <button id="submitBtn" onclick="submitAlert()">⚡ Run Incident Commander</button>
+    <button class="secondary" onclick="runDemo()">🎬 Demo</button>
+  </div>
+  <div class="spinner" id="spinner">🔄 Amazon Nova is analysing your incident…</div>
 </div>
 
 <!-- Result -->
-<div class="card" id="result">
-  <h2>📋 Incident Report</h2>
-  <div class="section-label">Matched Runbook</div>
-  <div class="runbook-title" id="runbookTitle"></div>
-  <div class="section-label">Runbook Steps</div>
-  <ul class="steps-list" id="runbookSteps"></ul>
-  <div class="section-label">🤖 Nova Reasoning</div>
-  <div class="reasoning-box" id="novaReasoning"></div>
-  <div class="section-label">🔧 Remediation Actions</div>
-  <ul class="actions-list" id="remediationActions"></ul>
-  <div id="resolvedBadge"></div>
-</div>
+<div class="card" id="result"></div>
 
-<footer>Amazon Nova Incident Commander v0.1.0 &nbsp;·&nbsp; Built with FastAPI + Bedrock</footer>
+<footer>Amazon Nova Incident Commander v0.2.0 &nbsp;·&nbsp; Built with FastAPI + Amazon Bedrock</footer>
 
 <script>
-  async function submitAlert() {
-    const btn = document.getElementById('submitBtn');
-    const spinner = document.getElementById('spinner');
-    const resultCard = document.getElementById('result');
-    const raw = document.getElementById('alertInput').value.trim();
+  function esc(str) {
+    return String(str == null ? '' : str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;')
+      .replace(/\n/g, '<br>');
+  }
 
-    let payload;
-    try {
-      payload = JSON.parse(raw);
-    } catch (e) {
-      alert('⚠️ Invalid JSON — please fix the alert input.');
+  function setLoading(on) {
+    document.getElementById('submitBtn').disabled = on;
+    document.getElementById('spinner').classList.toggle('active', on);
+  }
+
+  async function submitAlert() {
+    const description = document.getElementById('alertInput').value.trim();
+    const service = document.getElementById('serviceInput').value.trim();
+    const severity = document.getElementById('severityInput').value;
+
+    if (description.length < 10) {
+      alert('⚠️ Please enter a more detailed incident description (min 10 chars).');
       return;
     }
 
-    btn.disabled = true;
-    spinner.classList.add('active');
-    resultCard.style.display = 'none';
+    setLoading(true);
+    document.getElementById('result').style.display = 'none';
 
     try {
-      const res = await fetch('/incident', {
+      const res = await fetch('/incidents', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          description,
+          service,
+          severity,
+          use_mock: true,
+        }),
       });
 
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.detail || `HTTP ${res.status}`);
-      }
-
       const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`);
       renderReport(data);
     } catch (err) {
-      resultCard.style.display = 'block';
-      resultCard.innerHTML = `
-        <h2>📋 Incident Report</h2>
-        <div class="error-box">❌ Error: ${err.message}</div>`;
+      renderError(err.message);
     } finally {
-      btn.disabled = false;
-      spinner.classList.remove('active');
+      setLoading(false);
+    }
+  }
+
+  async function runDemo() {
+    setLoading(true);
+    document.getElementById('result').style.display = 'none';
+    try {
+      const res = await fetch('/demo', { method: 'POST' });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`);
+      renderReport(data);
+    } catch (err) {
+      renderError(err.message);
+    } finally {
+      setLoading(false);
     }
   }
 
   function renderReport(data) {
-    const resultCard = document.getElementById('result');
-    resultCard.innerHTML = `
+    const card = document.getElementById('result');
+    const remediationItems = (data.remediation || [])
+      .map(a => `<li>${esc(a)}</li>`).join('');
+    const statusBadge = data.status === 'completed'
+      ? '<div class="resolved-badge">✅ Analysis Complete</div>'
+      : `<div class="resolved-badge" style="border-color:#f78166;color:#f78166;">⚠️ ${esc(data.status)}</div>`;
+
+    card.innerHTML = `
       <h2>📋 Incident Report</h2>
-      <div class="section-label">Matched Runbook</div>
-      <div class="runbook-title">${esc(data.matched_runbook)}</div>
-      <div class="section-label">Runbook Steps</div>
-      <ul class="steps-list">${(data.runbook_steps||[]).map(s=>`<li>${esc(s)}</li>`).join('')}</ul>
-      <div class="section-label">🤖 Nova Reasoning</div>
-      <div class="reasoning-box">${esc(data.nova_reasoning)}</div>
-      <div class="section-label">🔧 Remediation Actions</div>
-      <ul class="actions-list">${(data.remediation_actions||[]).map(a=>`<li>${esc(a)}</li>`).join('')}</ul>
-      ${data.resolved
-        ? '<div class="resolved-badge">✅ Incident Resolved</div>'
-        : '<div class="resolved-badge" style="border-color:#f78166;color:#f78166;">⚠️ Unresolved</div>'}
+      <div class="meta-row">
+        <div class="meta-pill">Session <span>${esc(data.session_id.slice(0, 8))}…</span></div>
+        <div class="meta-pill">Model <span>${esc(data.model_id)}</span></div>
+        <div class="meta-pill">Turns <span>${esc(String(data.turns_used))}</span></div>
+        <div class="meta-pill">Status <span>${esc(data.status)}</span></div>
+      </div>
+      <div class="section-label">🤖 Nova Reasoning &amp; Diagnosis</div>
+      <div class="reasoning-box">${esc(data.diagnosis)}</div>
+      <div class="section-label">🔧 Remediation Steps</div>
+      <ul class="actions-list">${remediationItems || '<li>See diagnosis above for recommendations</li>'}</ul>
+      ${statusBadge}
     `;
-    resultCard.style.display = 'block';
-    resultCard.scrollIntoView({ behavior: 'smooth' });
+    card.style.display = 'block';
+    card.scrollIntoView({ behavior: 'smooth' });
   }
 
-  function esc(str) {
-    return String(str || '')
-      .replace(/&/g,'&amp;')
-      .replace(/</g,'&lt;')
-      .replace(/>/g,'&gt;')
-      .replace(/"/g,'&quot;')
-      .replace(/\n/g,'<br>');
+  function renderError(msg) {
+    const card = document.getElementById('result');
+    card.innerHTML = `
+      <h2>📋 Incident Report</h2>
+      <div class="error-box">❌ Error: ${esc(msg)}</div>
+    `;
+    card.style.display = 'block';
   }
 </script>
 </body>

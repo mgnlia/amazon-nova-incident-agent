@@ -5,7 +5,7 @@ In production, executors call real AWS APIs via boto3.
 """
 
 from __future__ import annotations
-import json
+
 import random
 from datetime import datetime, timedelta, timezone
 
@@ -232,19 +232,19 @@ def _mock_log_search(inp: dict) -> dict:
     log_group = inp.get("log_group", "/aws/lambda/unknown")
     now = datetime.now(timezone.utc)
     sample_errors = [
-        f"ERROR: Connection refused to downstream service at 10.0.1.42:5432",
-        f"FATAL: too many connections for role \"appuser\" — max 100",
-        f"TimeoutError: Task timed out after 29000ms",
-        f"HTTP 503 Service Unavailable from upstream target",
-        f"OutOfMemoryError: Container killed (OOMKilled) — limit 512MB",
-        f"ERROR: AccessDenied — sts:AssumeRole on arn:aws:iam::123456789012:role/AppRole",
+        "ERROR: Connection refused to downstream service at 10.0.1.42:5432",
+        'FATAL: too many connections for role "appuser" — max 100',
+        "TimeoutError: Task timed out after 29000ms",
+        "HTTP 503 Service Unavailable from upstream target",
+        "OutOfMemoryError: Container killed (OOMKilled) — limit 512MB",
+        "ERROR: AccessDenied — sts:AssumeRole on arn:aws:iam::123456789012:role/AppRole",
     ]
     events = []
-    for i, msg in enumerate(random.sample(sample_errors, min(3, len(sample_errors)))):
+    for msg in random.sample(sample_errors, min(3, len(sample_errors))):
         events.append({
             "timestamp": (now - timedelta(minutes=random.randint(1, 30))).isoformat(),
             "message": msg,
-            "logStream": f"stream-{random.randint(1000,9999)}",
+            "logStream": f"stream-{random.randint(1000, 9999)}",
         })
     return {
         "log_group": log_group,
@@ -346,6 +346,7 @@ def _mock_sql(inp: dict) -> dict:
 
 def _exec_retrieve_runbook(inp: dict) -> dict:
     from agent.runbooks import retrieve_runbooks
+
     query = inp.get("query", "")
     top_k = inp.get("top_k", 3)
     results = retrieve_runbooks(query, top_k=top_k)

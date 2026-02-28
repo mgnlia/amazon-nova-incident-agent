@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nova Incident Commander</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --border: #30363d;
+      --accent: #f78166;
+      --accent2: #79c0ff;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --green: #3fb950;
+      --radius: 8px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    header h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--accent2);
+      letter-spacing: -0.5px;
+    }
+
+    header p {
+      color: var(--muted);
+      margin-top: 0.4rem;
+      font-size: 0.95rem;
+    }
+
+    .badge {
+      display: inline-block;
+      background: #21262d;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2px 10px;
+      font-size: 0.75rem;
+      color: var(--accent);
+      margin-top: 0.5rem;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      width: 100%;
+      max-width: 760px;
+      margin-bottom: 1.5rem;
+    }
+
+    .card h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 1rem;
+    }
+
+    textarea {
+      width: 100%;
+      height: 180px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-family: 'Courier New', monospace;
+      font-size: 0.85rem;
+      padding: 0.75rem;
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    textarea:focus { border-color: var(--accent2); }
+
+    button {
+      margin-top: 1rem;
+      width: 100%;
+      padding: 0.75rem;
+      background: var(--accent2);
+      color: #0d1117;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    button:hover { opacity: 0.85; }
+    button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .spinner {
+      display: none;
+      margin-top: 1rem;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .spinner.active { display: block; }
+
+    .section-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 0.5rem;
+      margin-top: 1.2rem;
+    }
+
+    .section-label:first-of-type { margin-top: 0; }
+
+    .runbook-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--accent2);
+      margin-bottom: 0.75rem;
+    }
+
+    .steps-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .steps-list li {
+      padding: 0.5rem 0.75rem;
+      border-left: 3px solid var(--accent2);
+      margin-bottom: 0.5rem;
+      background: #21262d;
+      border-radius: 0 var(--radius) var(--radius) 0;
+      font-size: 0.88rem;
+      line-height: 1.5;
+    }
+
+    .reasoning-box {
+      background: #21262d;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem;
+      font-size: 0.88rem;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .actions-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .actions-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      padding: 0.4rem 0;
+      font-size: 0.88rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .actions-list li:last-child { border-bottom: none; }
+
+    .actions-list li::before {
+      content: "✓";
+      color: var(--green);
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .resolved-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(63,185,80,0.15);
+      border: 1px solid var(--green);
+      color: var(--green);
+      border-radius: 20px;
+      padding: 0.3rem 0.9rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-top: 1rem;
+    }
+
+    .error-box {
+      background: rgba(247,129,102,0.1);
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      border-radius: var(--radius);
+      padding: 1rem;
+      font-size: 0.88rem;
+      white-space: pre-wrap;
+    }
+
+    #result { display: none; }
+
+    footer {
+      margin-top: 2rem;
+      color: var(--muted);
+      font-size: 0.78rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🛡️ Amazon Nova Incident Commander</h1>
+  <p>AI-powered DevOps incident response — powered by Amazon Nova Lite on Bedrock</p>
+  <span class="badge">RAG · Bedrock · FastAPI</span>
+</header>
+
+<!-- Input -->
+<div class="card">
+  <h2>📥 Submit Alert</h2>
+  <textarea id="alertInput" spellcheck="false">{
+  "alert_type": "high_cpu",
+  "service": "payment-service",
+  "severity": "critical",
+  "message": "CPU utilisation at 97% for 10 minutes on i-0abc123. Requests timing out."
+}</textarea>
+  <button id="submitBtn" onclick="submitAlert()">⚡ Run Incident Commander</button>
+  <div class="spinner" id="spinner">🔄 Analysing alert with Amazon Nova…</div>
+</div>
+
+<!-- Result -->
+<div class="card" id="result">
+  <h2>📋 Incident Report</h2>
+  <div class="section-label">Matched Runbook</div>
+  <div class="runbook-title" id="runbookTitle"></div>
+  <div class="section-label">Runbook Steps</div>
+  <ul class="steps-list" id="runbookSteps"></ul>
+  <div class="section-label">🤖 Nova Reasoning</div>
+  <div class="reasoning-box" id="novaReasoning"></div>
+  <div class="section-label">🔧 Remediation Actions</div>
+  <ul class="actions-list" id="remediationActions"></ul>
+  <div id="resolvedBadge"></div>
+</div>
+
+<footer>Amazon Nova Incident Commander v0.1.0 &nbsp;·&nbsp; Built with FastAPI + Bedrock</footer>
+
+<script>
+  async function submitAlert() {
+    const btn = document.getElementById('submitBtn');
+    const spinner = document.getElementById('spinner');
+    const resultCard = document.getElementById('result');
+    const raw = document.getElementById('alertInput').value.trim();
+
+    let payload;
+    try {
+      payload = JSON.parse(raw);
+    } catch (e) {
+      alert('⚠️ Invalid JSON — please fix the alert input.');
+      return;
+    }
+
+    btn.disabled = true;
+    spinner.classList.add('active');
+    resultCard.style.display = 'none';
+
+    try {
+      const res = await fetch('/incident', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.detail || `HTTP ${res.status}`);
+      }
+
+      const data = await res.json();
+      renderReport(data);
+    } catch (err) {
+      resultCard.style.display = 'block';
+      resultCard.innerHTML = `
+        <h2>📋 Incident Report</h2>
+        <div class="error-box">❌ Error: ${err.message}</div>`;
+    } finally {
+      btn.disabled = false;
+      spinner.classList.remove('active');
+    }
+  }
+
+  function renderReport(data) {
+    const resultCard = document.getElementById('result');
+    resultCard.innerHTML = `
+      <h2>📋 Incident Report</h2>
+      <div class="section-label">Matched Runbook</div>
+      <div class="runbook-title">${esc(data.matched_runbook)}</div>
+      <div class="section-label">Runbook Steps</div>
+      <ul class="steps-list">${(data.runbook_steps||[]).map(s=>`<li>${esc(s)}</li>`).join('')}</ul>
+      <div class="section-label">🤖 Nova Reasoning</div>
+      <div class="reasoning-box">${esc(data.nova_reasoning)}</div>
+      <div class="section-label">🔧 Remediation Actions</div>
+      <ul class="actions-list">${(data.remediation_actions||[]).map(a=>`<li>${esc(a)}</li>`).join('')}</ul>
+      ${data.resolved
+        ? '<div class="resolved-badge">✅ Incident Resolved</div>'
+        : '<div class="resolved-badge" style="border-color:#f78166;color:#f78166;">⚠️ Unresolved</div>'}
+    `;
+    resultCard.style.display = 'block';
+    resultCard.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function esc(str) {
+    return String(str || '')
+      .replace(/&/g,'&amp;')
+      .replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;')
+      .replace(/\n/g,'<br>');
+  }
+</script>
+</body>
+</html>

@@ -1,156 +1,112 @@
-# 🛡️ Amazon Nova Incident Commander
+# Amazon Nova Incident Commander 🚨
 
-> AI-powered DevOps incident-response agent — built with **Amazon Nova Lite** (Bedrock), **FastAPI**, and **NumPy-powered RAG**.
+**AI-powered DevOps incident response agent using Amazon Nova on AWS Bedrock**
 
-When an alert fires, the agent:
-1. **Ingests** the structured alert payload
-2. **Retrieves** the most relevant runbook via cosine-similarity search
-3. **Reasons** over the alert + runbook with Amazon Nova Lite on Bedrock
-4. **Executes** mock automated remediation actions
-5. **Returns** a full `IncidentReport` via REST API
+Built for the [Amazon Nova AI Challenge — Agentic AI Track](https://devpost.com/software/amazon-nova-incident-commander).
 
----
+## What It Does
 
-## 🏗️ Architecture
+An autonomous incident response agent that diagnoses and remediates AWS infrastructure incidents using an **agentic tool-use loop** powered by Amazon Nova (Pro/Lite) on Bedrock.
 
-```mermaid
-graph LR
-    A[🚨 Alert JSON] --> B[AlertIngester]
-    B --> C{RunbookStore\nRAG · Cosine Sim}
-    C -->|Best runbook| D[NovaClient\nAmazon Nova Lite\non Bedrock]
-    D -->|Reasoning| E[Remediation Engine]
-    E --> F[📋 IncidentReport]
+### Key Features
 
-    style A fill:#f78166,color:#000
-    style D fill:#79c0ff,color:#000
-    style F fill:#3fb950,color:#000
+- **Agentic Tool-Use Loop**: Full `converse → toolUse → toolResult → converse` cycle with Amazon Nova via Bedrock's Converse API
+- **10 Built-in Runbooks**: TF-IDF retrieval-augmented generation (RAG) matches incidents to standard operating procedures
+- **7 Diagnostic Tools**: CloudWatch metrics, log search, SSM commands, network analysis, IAM policy review, SQL queries, and runbook retrieval
+- **Multi-turn Reasoning**: Agent autonomously decides which tools to call, analyzes results, and iterates up to 15 turns
+- **Auto-fallback**: Automatically falls back from Nova Pro to Nova Lite on throttling
+- **REST API**: FastAPI backend for incident submission, tracking, and demo mode
+
+## Architecture
+
+```
+User → FastAPI API → Agent Core (agentic loop)
+                         ↓
+                    Amazon Nova (Bedrock Converse API)
+                         ↓
+                    Tool Selection → Tool Execution
+                         ↓              ↓
+                    CloudWatch    Log Search    SSM
+                    DynamoDB     IAM Policy    Network
+                         ↓
+                    Runbook RAG (TF-IDF)
+                         ↓
+                    Diagnosis + Remediation
 ```
 
-### Components
-
-| Component | Description |
-|---|---|
-| `AlertIngester` | Validates & normalises raw alert dicts |
-| `RunbookStore` | In-memory store; bag-of-words + NumPy cosine similarity retrieval |
-| `NovaClient` | Calls `bedrock-runtime.converse()` with `amazon.nova-lite-v1:0`; graceful mock fallback |
-| `IncidentCommander` | Orchestrates the full pipeline, returns `IncidentReport` dataclass |
-| `FastAPI app` | REST API — `POST /incident`, `GET /`, `GET /health` |
-| `static/index.html` | Single-page UI — submit alert JSON, view reasoning + resolution |
-
----
-
-## 🚀 Quick Start
-
-### Prerequisites
-
-- Python ≥ 3.11
-- [`uv`](https://docs.astral.sh/uv/) package manager
+## Quick Start
 
 ```bash
-# 1. Clone
-git clone https://github.com/mgnlia/amazon-nova-incident-agent.git
-cd amazon-nova-incident-agent
-
-# 2. Install dependencies
+# Install dependencies
 uv sync
 
-# 3. Run the server
-uv run uvicorn api.main:app --reload
+# Run in mock mode (no AWS credentials needed)
+MOCK_MODE=true uv run uvicorn api.main:app --reload
+
+# Run with real Bedrock
+AWS_REGION=us-east-1 uv run uvicorn api.main:app --reload
 ```
 
-Open **http://localhost:8000** in your browser.
+## API Endpoints
 
----
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/health` | Health check |
+| POST | `/incidents` | Submit incident for analysis |
+| GET | `/incidents` | List all analyses |
+| GET | `/incidents/{id}` | Get specific analysis |
+| POST | `/demo` | Run demo incident |
 
-## ☁️ AWS Bedrock Setup
-
-To enable real Nova Lite reasoning (instead of the built-in mock fallback):
+### Example Request
 
 ```bash
-# Configure AWS credentials
-aws configure
-# or set environment variables:
-export AWS_ACCESS_KEY_ID=...
-export AWS_SECRET_ACCESS_KEY=...
-export AWS_DEFAULT_REGION=us-east-1
+curl -X POST http://localhost:8000/incidents \
+  -H "Content-Type: application/json" \
+  -d '{
+    "description": "Production API returning 5xx errors at 200/min, 2 of 5 ALB targets unhealthy",
+    "severity": "critical",
+    "service": "ALB",
+    "use_mock": true
+  }'
 ```
 
-Ensure your IAM role/user has the `bedrock:InvokeModel` permission and that **Amazon Nova Lite** (`amazon.nova-lite-v1:0`) is enabled in your AWS account under **Bedrock → Model access**.
+## Runbooks
 
-> **No credentials?** The agent automatically falls back to a built-in mock reasoning response — fully functional for demo purposes.
+| ID | Incident Type |
+|----|--------------|
+| rb-001 | High CPU / Memory on EC2 |
+| rb-002 | 5xx Errors on ALB / API Gateway |
+| rb-003 | Database Connection Exhaustion (RDS) |
+| rb-004 | Lambda Throttling / Timeout |
+| rb-005 | S3 Access Denied / Bucket Policy |
+| rb-006 | ECS/EKS Task Crash Loop |
+| rb-007 | DynamoDB Throttling |
+| rb-008 | VPC / Network Connectivity Failure |
+| rb-009 | CloudFront Cache Miss / Origin Error |
+| rb-010 | IAM / STS Credential Failure |
 
----
+## Testing
 
-## 📡 API Reference
-
-### `POST /incident`
-
-Submit an alert and receive an `IncidentReport`.
-
-**Request body:**
-```json
-{
-  "alert_type": "high_cpu",
-  "service": "payment-service",
-  "severity": "critical",
-  "message": "CPU utilisation at 97% for 10 minutes. Requests timing out."
-}
+```bash
+uv run pytest tests/ -v
 ```
 
-**Response:**
-```json
-{
-  "alert": { "alert_type": "high_cpu", "service": "payment-service", "severity": "critical", "message": "..." },
-  "matched_runbook": "High CPU Utilisation",
-  "runbook_steps": ["1. SSH into the affected host...", "..."],
-  "nova_reasoning": "Based on the alert, the root cause appears to be...",
-  "remediation_actions": ["[AUTO] Triggered runbook...", "..."],
-  "resolved": true,
-  "timestamp": 1718000000.0
-}
-```
+## Tech Stack
 
-### `GET /health`
-```json
-{ "status": "ok" }
-```
+- **AI Model**: Amazon Nova Pro v1 / Lite v1 on AWS Bedrock
+- **API Framework**: FastAPI + Uvicorn
+- **RAG**: Custom TF-IDF retrieval over runbook corpus
+- **Language**: Python 3.11+
+- **Package Manager**: uv
+- **CI**: GitHub Actions
 
----
+## How It Uses Amazon Nova
 
-## 🗂️ Project Structure
+1. **Converse API**: Uses Bedrock's `converse()` with `toolConfig` for native tool-use
+2. **Multi-turn**: Agent loops autonomously — Nova decides which tools to call
+3. **System Prompt Engineering**: Structured incident commander persona with prioritization logic
+4. **Fallback**: Auto-switches Nova Pro → Lite on throttling for resilience
 
-```
-amazon-nova-incident-agent/
-├── agent/
-│   ├── __init__.py
-│   └── core.py          # AlertIngester, RunbookStore, NovaClient, IncidentCommander
-├── api/
-│   ├── __init__.py
-│   └── main.py          # FastAPI application
-├── static/
-│   └── index.html       # Single-page UI
-├── pyproject.toml       # uv project manifest
-└── .github/
-    └── workflows/
-        └── ci.yml       # CI pipeline
-```
+## License
 
----
-
-## 📦 Sample Runbooks
-
-| ID | Title | Triggers |
-|---|---|---|
-| `high_cpu` | High CPU Utilisation | cpu, performance, load, spike |
-| `disk_full` | Disk / Volume Full | disk, storage, volume, space |
-| `service_down` | Service / Process Down | crash, timeout, 503, unreachable |
-
----
-
-## 🤝 Contributing
-
-PRs welcome! To add a runbook, extend `_SAMPLE_RUNBOOKS` in `agent/core.py`.
-
----
-
-*Built with ❤️ using Amazon Nova Lite · FastAPI · NumPy*
+MIT

@@ -1,1 +1,1 @@
-# Amazon Nova Incident Commander — agent package
+# Amazon Nova Incident Commander — Agent Package

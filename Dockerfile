@@ -2,15 +2,14 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-# Install uv
-RUN pip install --no-cache-dir uv
+# Install uv via official installer (avoids pip version conflicts)
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 
 # Copy dependency files first for layer caching
 COPY pyproject.toml ./
-COPY uv.lock* ./
 
-# Install dependencies
-RUN uv sync --no-dev
+# Install dependencies without requiring uv.lock (generates one on first run)
+RUN uv sync --no-dev --frozen 2>/dev/null || uv sync --no-dev
 
 # Copy application code
 COPY agent/ ./agent/

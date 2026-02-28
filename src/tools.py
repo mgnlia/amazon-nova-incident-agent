@@ -4,7 +4,7 @@ In production these would call real AWS APIs. Here they are mocked
 with realistic responses and simulated delays.
 """
 from __future__ import annotations
-import json
+
 import random
 import time
 from typing import Any
@@ -153,12 +153,12 @@ TOOL_DEFINITIONS = [
 
 def execute_tool(tool_name: str, tool_input: dict[str, Any]) -> dict[str, Any]:
     """Execute a tool and return the result. All tools are mocked."""
-    
+
     if tool_name == "get_cloudwatch_metrics":
         resource_id = tool_input["resource_id"]
         metric = tool_input["metric_name"]
         period = tool_input.get("period_minutes", 30)
-        
+
         # Generate realistic metric data based on metric name
         if "CPU" in metric:
             current = random.uniform(88, 97)

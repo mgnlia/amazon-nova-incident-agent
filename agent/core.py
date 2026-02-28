@@ -5,7 +5,6 @@ Implements the full converse → toolUse → toolResult → converse cycle.
 
 from __future__ import annotations
 
-import json
 import logging
 import os
 from dataclasses import dataclass, field
@@ -67,6 +66,7 @@ def run_agent(incident_description: str, session: AgentSession | None = None) ->
     """
     if session is None:
         import uuid
+
         session = AgentSession(session_id=str(uuid.uuid4()))
 
     client = create_bedrock_client()
@@ -133,6 +133,8 @@ def run_agent(incident_description: str, session: AgentSession | None = None) ->
 
 def _process_tool_calls(message: dict) -> list[dict]:
     """Extract tool_use blocks, execute tools, return toolResult blocks."""
+    import json
+
     content = message.get("content", [])
     results = []
 
@@ -174,6 +176,7 @@ def run_agent_mock(incident_description: str) -> AgentSession:
     Simulates the full agentic flow with realistic tool calls and diagnosis.
     """
     import uuid
+
     from agent.runbooks import retrieve_runbooks
 
     session = AgentSession(session_id=str(uuid.uuid4()), model_id="mock")
@@ -279,7 +282,7 @@ def _generate_mock_diagnosis(
                 vals = [dp["value"] for dp in dps]
                 lines.append(f"  - Metric: {result.get('metric_name', 'N/A')}")
                 lines.append(f"  - Average: {sum(vals)/len(vals):.1f}, Peak: {max(vals):.1f}")
-                lines.append(f"  - ⚠️ Values are elevated — above normal operating threshold")
+                lines.append("  - Warning: Values are elevated — above normal operating threshold")
         elif tool == "log_search":
             events = result.get("events", [])
             lines.append(f"  - Found {len(events)} error events in the last 30 minutes")
@@ -289,9 +292,9 @@ def _generate_mock_diagnosis(
             lines.append(f"  - Instance: {result.get('instance_id', 'N/A')}")
             stdout = result.get("stdout", "")
             if "cpu" in stdout.lower() or "%Cpu" in stdout:
-                lines.append(f"  - ⚠️ High CPU detected in process list")
+                lines.append("  - Warning: High CPU detected in process list")
         else:
-            lines.append(f"  - Data collected successfully")
+            lines.append("  - Data collected successfully")
 
     lines.append("\n### Root Cause Assessment\n")
     lines.append(

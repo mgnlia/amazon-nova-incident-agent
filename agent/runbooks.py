@@ -5,6 +5,7 @@ TF-IDF retrieval selects the best-match runbook for a given incident.
 """
 
 from __future__ import annotations
+
 import math
 import re
 from dataclasses import dataclass, field
